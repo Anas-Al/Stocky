@@ -143,7 +143,14 @@ async def option(
         except Exception as e:
             pass
 
-        volatility = iv if iv else hist_vol
+        # Use historical volatility if IV is missing or unreasonably low
+        if iv is None or iv < 0.01:
+            volatility = hist_vol
+            source = "Historical"
+        else:
+            volatility = iv
+            source = "Implied"
+
         r = 0.015
 
         d1 = (np.log(current_price / strike) + (r + 0.5 * volatility**2) * T) / (volatility * np.sqrt(T))
@@ -166,7 +173,7 @@ async def option(
 
         embed = discord.Embed(
             title=f"{ticker} {option_type.capitalize()} Option @ ${strike} expiring {expiration}",
-            description=f"📊 Based on Black-Scholes model with {'Implied' if iv else 'Historical'} Volatility",
+            description=f"📊 Based on Black-Scholes model with {source} Volatility",
             color=discord.Color.blue()
         )
         embed.add_field(name="Current Price", value=f"${current_price:.2f}", inline=True)
