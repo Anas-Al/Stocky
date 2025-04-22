@@ -144,7 +144,7 @@ async def option(
             pass
 
         # Use historical volatility if IV is missing or unreasonably low
-        if iv is None or iv < 0.01:
+        if iv is None or iv < 0.10:
             volatility = hist_vol
             source = "Historical"
         else:
